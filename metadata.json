@@ -1,0 +1,5 @@
+{
+  "name": "React Time Tracker",
+  "description": "A comprehensive time tracking application for employees and managers. Users can clock in/out, manage time entries manually, filter data by date, and export reports. Includes a special manager view to oversee all employee data.",
+  "requestFramePermissions": []
+}
