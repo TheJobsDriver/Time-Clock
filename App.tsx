@@ -1,4 +1,4 @@
-
+import { sendPunch, fetchRecentEntries } from './sheetApi';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import type { TimeEntry } from './types';
 import { ymdLocal, localDateFrom, calculateHours } from './utils/dateHelpers';
@@ -42,6 +42,10 @@ const App: React.FC = () => {
             const manager = storedId === '9999';
             setIsManager(manager);
             setModal(null);
+            const idForFetch = manager ? undefined : storedId;
+            fetchRecentEntries(idForFetch).then(setEntries).catch(console.error);
+
+
         } else {
             setModal('login');
         }
@@ -99,6 +103,9 @@ const App: React.FC = () => {
         setIsManager(manager);
         localStorage.setItem('employeeId', code);
         setModal(null);
+        const idForFetch = code === '9999' ? undefined : code;
+        fetchRecentEntries(idForFetch).then(setEntries).catch(console.error);
+
         if (manager) setFilters(f => ({ ...f, employee: '' }));
     };
     
@@ -119,6 +126,7 @@ const App: React.FC = () => {
                 e.id === activeEntry.id ? { ...e, end: now.toTimeString().slice(0, 5) } : e
             );
             saveEntries(updatedEntries);
+            sendPunch('out', { ...activeEntry, end: now.toTimeString().slice(0, 5) });
             setActiveEntry(null);
             setAlert({ message: 'Clocked out successfully', type: 'success' });
         } else { // Clocking in
@@ -132,6 +140,7 @@ const App: React.FC = () => {
             };
             const updatedEntries = [...entries, newEntry];
             saveEntries(updatedEntries);
+            sendPunch('in', newEntry);
             setActiveEntry(newEntry);
             setAlert({ message: `Clocked in at ${newEntry.start}`, type: 'success' });
         }
